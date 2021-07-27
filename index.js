@@ -17,7 +17,9 @@ app.use(express.json({ limit: "30mb" }));
 app.use(express.urlencoded({ extended: true, limit: "30mb" }));
 
 app.use("/posts", posts);
-
+app.get("/", (req, res) => {
+    res.send("hello");
+});
 var port = process.env.PORT || config.get("server.port");
 var dbUrlString = `mongodb://${config.get("mongodb.username")}:${config.get(
     "mongodb.password"

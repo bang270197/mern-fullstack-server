@@ -1,2 +1,2 @@
 yarn
-yarn index.js
+node index.js
