@@ -1,9 +1,10 @@
-import express from "express";
-import cors from "cors";
-import posts from "./routers/posts.js";
-import mongoose from "mongoose";
-import dotenv from "dotenv";
+const express = require("express");
 
+const posts = require("./routers/posts.js");
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+const cors = require("cors");
+const config = require("config");
 dotenv.config();
 
 const app = express();
@@ -17,14 +18,23 @@ app.use(express.urlencoded({ extended: true, limit: "30mb" }));
 
 app.use("/posts", posts);
 
-mongoose
-    .connect(URI, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => {
-        console.log("Connected to DB");
-        app.listen(PORT, () => {
-            console.log(`Server is running on port ${PORT}`);
-        });
-    })
-    .catch((err) => {
-        console.log("err", err);
+var port = process.env.PORT || config.get("server.port");
+var dbUrlString = `mongodb://${config.get("mongodb.username")}:${config.get(
+    "mongodb.password"
+)}@${config.get("mongodb.host")}:${config.get("mongodb.port")}/${config.get(
+    "mongodb.database"
+)}`;
+mongoose.connect(dbUrlString, {
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useUnifiedTopology: true,
+});
+var db = mongoose.connection;
+db.on("error", console.error.bind(console, "MongoDB connection error:"));
+db.once("open", function () {
+    console.log("MongoDB connected");
+    app.listen(port, "0.0.0.0", () => {
+        console.log("Server is running at port:" + port);
+        // console.log("Document of apis at: localhost:5000/docs");
     });
+});
